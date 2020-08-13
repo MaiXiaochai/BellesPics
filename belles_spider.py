@@ -131,8 +131,8 @@ def spider(start_url: str, base_url: str, log, data_dir: str = None):
 
 def main():
     log_dir = "logs"
-    log_name = ""
-    log = logger(log_dir)
+    log_name = "belleSpider.log"
+    log = logger(log_dir, log_name)
 
     start_url = 'https://www.ku137.net/b/tag/'
     base_url = 'https://www.ku137.net'
