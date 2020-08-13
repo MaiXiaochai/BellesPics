@@ -117,6 +117,7 @@ def spider(start_url: str, base_url: str, log, data_dir: str = None):
 
                     for pic_url in pic_urls:
                         if db.has_url(pic_url):
+                            log.debug(f'existed | {pic_url}')
                             continue
 
                         file_path = f"{girl_dir}{girl_name}_{pic_counter}.jpg"
