@@ -11,7 +11,7 @@
 import re
 from asyncio import ensure_future, get_event_loop, wait
 
-from utils import logger, WebHandler, FileHandler
+from utils import logger, WebHandler, FileHandler, DataBase, create_db
 
 
 class BellesSpider(WebHandler):
@@ -56,11 +56,13 @@ def spider(start_url: str, base_url: str, log, data_dir: str = None):
 
     web_handler = WebHandler()
     belle_spider = BellesSpider()
+    db = DataBase()
+    next_id = db.get_next_id()
 
-    log.debug("所有网站列表 | start ")
+    log.debug("获取网站列表 | start ")
     soup = web_handler.soup(start_url)
     result = soup.find_all('a', attrs={"target": "_blank"})
-    log.debug(f"所有网站列表 | total:{len(result)} | done. ")
+    log.debug(f"获取网站列表 | total:{len(result)} | done. ")
 
     # 所有分类 (name, url)
     urls = []
@@ -90,10 +92,9 @@ def spider(start_url: str, base_url: str, log, data_dir: str = None):
             page_url = f"{site[-1]}list_9_{page_nbr}.html"
             page_soup = web_handler.soup(page_url)
             girls = belle_spider.girls_parser(page_soup)
-            log.debug(f"{site_name} | {page_nbr} | total girls: {len(girls)}")
+            log.debug(f"{site_name} | {page_nbr} | girls: {len(girls)}")
 
             for girl_name, girl_url in girls:
-                log.debug(f"{site_name} | {girl_name}")
                 soup = web_handler.soup(girl_url)
 
                 # 创建 girl 文件夹
@@ -101,7 +102,7 @@ def spider(start_url: str, base_url: str, log, data_dir: str = None):
                 file_handler.make_dirs(girl_dir)
 
                 girl_max_page_nbr = belle_spider.girl_max_page_number(soup)
-                log.debug(f"{site_name} | girl: {girl_name} | max page number: {girl_max_page_nbr}")
+                log.debug(f"{site_name} | {girl_name} | total number: {girl_max_page_nbr}")
                 pic_counter = 0
                 girl_page_counter = 0
                 tasks = []
@@ -115,18 +116,32 @@ def spider(start_url: str, base_url: str, log, data_dir: str = None):
                     pic_urls = belle_spider.pics_parser(girl_page_soup)
 
                     for pic_url in pic_urls:
-                        pic_counter += 1
+                        if db.has_url(pic_url):
+                            continue
+
                         file_path = f"{girl_dir}{girl_name}_{pic_counter}.jpg"
+
+                        data = {
+                            'id': next_id,
+                            'site_name': site_name,
+                            'site_url': site_url,
+                            'girl_name': girl_name,
+                            'pic_url': pic_url,
+                            'file_path': file_path
+                        }
+
+                        pic_counter += 1
+                        next_id += 1
+
                         tasks.append(
-                            ensure_future(
-                                file_handler.download_img(pic_url, file_path, girl_name, pic_counter, log)
-                            )
+                            ensure_future(file_handler.download_img(pic_counter, db, data, log)
+                                          )
                         )
 
-                loop = get_event_loop()
-                loop.run_until_complete(wait(tasks))
-
-                log.debug(f"site: {site_name} | girl: {girl_name} | total pics: {pic_counter}")
+                if tasks:
+                    loop = get_event_loop()
+                    loop.run_until_complete(wait(tasks))
+                    log.debug(f"site: {site_name} | girl: {girl_name} | total pics: {pic_counter}")
 
 
 def main():
@@ -136,6 +151,11 @@ def main():
 
     start_url = 'https://www.ku137.net/b/tag/'
     base_url = 'https://www.ku137.net'
+
+    try:
+        create_db()
+    except Exception as err:
+        log.error(str(err))
 
     log.debug(f"url: {base_url} | 下载开始.")
     spider(start_url, base_url, log)

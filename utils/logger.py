@@ -18,8 +18,8 @@ from logging import getLogger, StreamHandler, Formatter, DEBUG
 def logger(log_dir: str = None, file_name: str = None, back_count: int = None, log_size: float or int = None):
     log_dir = log_dir or 'logs'
     file_name = file_name or (basename(__file__).split('.')[0] + '.log')
-    back_count = back_count or 5
-    log_size = (log_size or 10) * 1024 ** 2
+    back_count = back_count or 8
+    log_size = (log_size or 512) * 1024 ** 2
 
     log_dir = log_dir if log_dir.endswith("/") else log_dir + '/'
     log_file_path = f"{log_dir}{file_name}"
