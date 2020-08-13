@@ -9,4 +9,5 @@
 --------------------------------------
 """
 from .web_handler import WebHandler
-
+from .logger import logger
+from .file_handler import FileHandler

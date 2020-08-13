@@ -163,3 +163,7 @@ speed-measure-plugin*.json
 
 # scripts
 **/scripts
+
+# data
+/data
+/logs

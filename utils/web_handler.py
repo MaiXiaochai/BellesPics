@@ -25,6 +25,12 @@ class WebHandler:
         return resp.text
 
     @staticmethod
+    def get_pic(url):
+        resp = requests.get(url)
+
+        return resp.content
+
+    @staticmethod
     def parser(resp):
         soup = BS(resp, 'lxml')
 
