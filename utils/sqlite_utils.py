@@ -48,6 +48,13 @@ class DataBase:
 
         return result
 
+    def has_girl_name(self, girl_name: str) -> bool:
+        """通过判断MD5值，确定视频是否存在"""
+        row = self.session.query(self.tb_data).filter(self.tb_data.pic_url == girl_name).first()
+        result = True if row else False
+
+        return result
+
     def commit(self):
         self.session.commit()
 

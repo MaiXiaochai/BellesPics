@@ -30,7 +30,7 @@ class GirlPics(BaseModel):
     __tablename__ = "GirlPics"
     site_name = Column(String, comment='网站名称')
     site_url = Column(String, comment='网站地址')
-    girl_name = Column(String, comment='模特名称')
+    girl_name = Column(String, index=True, comment='模特名称')
     pic_url = Column(String, index=True, comment='图片地址')
     file_path = Column(String, index=True, comment='文件保存地址')
 
