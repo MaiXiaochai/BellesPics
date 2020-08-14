@@ -8,10 +8,9 @@
 @CreatedOn  : 2020/8/13 23:53
 --------------------------------------
 """
-import asyncio
 
 from os import makedirs
-from os.path import basename, exists
+from os.path import exists
 
 import aiohttp
 
@@ -47,8 +46,7 @@ class FileHandler:
         log.debug(f"{girl_name} | {pic_counter} | downloading ...")
         content = await self.__get_content(url)
         self.save_file(file_path, content)
-        log.debug(f"{girl_name} | {pic_counter} | saved.")
 
         db.insert(**insert_data)
         pic_url = insert_data.get('pic_url')
-        log.debug(f"{girl_name} | {pic_counter} | inserted.")
+        log.debug(f"{girl_name} | {pic_counter} | saved.")
