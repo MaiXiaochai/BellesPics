@@ -32,7 +32,7 @@ class GirlPics(BaseModel):
     site_url = Column(String, comment='网站地址')
     girl_name = Column(String, index=True, comment='模特名称')
     pic_url = Column(String, index=True, comment='图片地址')
-    file_path = Column(String, index=True, comment='文件保存地址')
+    file_path = Column(String, comment='文件保存地址')
 
 
 def create_db():
