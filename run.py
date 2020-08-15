@@ -72,7 +72,7 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
         log.info(f"Download from: {site_name}: {start_page_number}/{max_page_number}")
 
         # 该网站具体的 girl 数量
-        girl_counter = 1
+        girl_counter = (start_page_number - 1) * 25
 
         # 按页访问具体网站
         for page_nbr in range(start_page_number, max_page_number + 1):
@@ -82,6 +82,7 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
             girls_length = len(girls)
 
             start_girl_number = db_pro.get_value(site_name, 'girl_number')
+            girl_counter = girl_counter + start_girl_number
 
             # 这页的girl数
             this_page_girl_counter = 1
