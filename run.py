@@ -96,7 +96,7 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                     continue
 
                 # 创建 girl 文件夹
-                girl_dir = f"{site_dir}{girl_counter}_{page_nbr}_{this_page_girl_counter}__{girl_name}/"
+                girl_dir = f"{site_dir}{girl_counter}_{page_nbr}_{this_page_girl_counter}_{girl_name}/"
                 file_handler.make_dirs(girl_dir)
 
                 girl_max_page_nbr = belle_spider.girl_max_page_number(soup)
