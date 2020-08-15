@@ -1,0 +1,23 @@
+title = 'BellesPics configuration'
+
+[site]
+# 网站首页
+base_url = 'https://www.ku137.net'
+# 网站列表页
+start_url = 'https://www.ku137.net/b/tag/'
+
+
+[data]
+# 下载文件保存目录
+data_dir = 'data'
+
+
+[log]
+# 日志文件名称
+log_name = 'belleSpider.log'
+# 日志存放目录
+log_dir = 'logs'
+# 最大额外备份文件数量
+back_count = 10
+# 单个文件大小
+max_size = 512

@@ -11,8 +11,9 @@
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime, func
+from .constants import Const
 
-DB_URI = "sqlite:///girlPics.db"
+DB_URI = Const.db_uri.value
 engine = sqlalchemy.create_engine(DB_URI)
 Base = declarative_base()
 
@@ -32,7 +33,7 @@ class GirlPics(BaseModel):
     site_url = Column(String, comment='网站地址')
     girl_name = Column(String, index=True, comment='模特名称')
     pic_url = Column(String, index=True, comment='图片地址')
-    file_path = Column(String, comment='文件保存地址')
+    file_path = Column(String, index=True, comment='文件保存地址')
 
 
 def create_db():

@@ -23,7 +23,7 @@ class DataBase:
         self.session = sess()
 
     def get_next_id(self) -> int:
-        """获取最大值"""
+        """获取最大 id 值"""
         row = self.session.query(self.tb_data).order_by(self.tb_data.id.desc()).first()
         next_id = (row.id + 1) if row else 1
 
@@ -42,15 +42,15 @@ class DataBase:
         self.commit()
 
     def has_url(self, pic_url: str) -> bool:
-        """通过判断MD5值，确定视频是否存在"""
+        """判断该张图片是否已经下载"""
         row = self.session.query(self.tb_data).filter(self.tb_data.pic_url == pic_url).first()
         result = True if row else False
 
         return result
 
     def has_girl_name(self, girl_name: str) -> bool:
-        """通过判断MD5值，确定视频是否存在"""
-        row = self.session.query(self.tb_data).filter(self.tb_data.pic_url == girl_name).first()
+        """判断该美女的图片是否已经下载"""
+        row = self.session.query(self.tb_data).filter(self.tb_data.girl_name == girl_name).first()
         result = True if row else False
 
         return result

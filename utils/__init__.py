@@ -13,3 +13,7 @@ from .logger import logger
 from .file_handler import FileHandler
 from .models import GirlPics, engine, create_db
 from .sqlite_utils import DataBase
+from .constants import Const
+from .config_parser import parser
+
+cfg = parser(Const.cfg_path.value)
