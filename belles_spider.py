@@ -46,3 +46,11 @@ class BellesSpider(WebHandler):
         urls = [x['src'] for x in pics]
 
         return urls
+
+    @staticmethod
+    def get_tag_number(url: str) -> int:
+        sep = '/'
+        url = url if url.endswith(sep) else f"{url}{sep}"
+        number = url.split(sep)[-2]
+
+        return int(number)

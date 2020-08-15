@@ -15,3 +15,7 @@ def parser(file_path):
     data = load(file_path, _dict=dict)
 
     return data
+
+
+cfg_path = 'config.toml'
+cfg = parser(cfg_path)

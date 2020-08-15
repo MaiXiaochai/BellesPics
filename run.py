@@ -10,7 +10,7 @@
 """
 from asyncio import ensure_future, get_event_loop, wait
 
-from utils import logger, WebHandler, FileHandler, PicsTable, ProgressTable, create_db, cfg
+from utils import logger, WebHandler, FileHandler, BaseProxySpider, PicsTable, ProgressTable, create_db, cfg, Const
 from belles_spider import BellesSpider
 
 
@@ -40,14 +40,15 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
     # 进入具体网站
     for site_idx, site in enumerate(urls, 1):
         site_name, site_url = site
+        tag_number = belle_spider.get_tag_number(site_url)
         log.debug(f"{site_name} | {site_url}")
 
         # 如果下载进度表中没有该网站，则插入信息
         if not db_pro.has_site(site_name):
             site_data = {
                 'site_name': site_name,
-                'page_number': 0,
-                'girl_number': 0
+                'page_number': 1,
+                'girl_number': 1
             }
             db_pro.insert(**site_data)
 
@@ -58,7 +59,7 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                 log.info(f"{site_name}: finished.")
                 continue
 
-        # 获取网站最大页数
+        # 访问具体网站首页, 获取网站最大页数
         site_soup = web_handler.soup(site_url)
         max_page_number = belle_spider.site_max_page_number(site_soup)
         log.info(f"{site_name} | total page: {max_page_number}")
@@ -67,18 +68,25 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
         site_dir = f"{data_dir}{site_name}/"
         file_handler.make_dirs(site_dir)
 
-        # 访问网站具体页面
         start_page_number = db_pro.get_value(site_name, 'page_number')
         log.info(f"Download from: {site_name}: {start_page_number}/{max_page_number}")
 
+        # 该网站具体的 girl 数量
+        girl_counter = 1
+
+        # 按页访问具体网站
         for page_nbr in range(start_page_number, max_page_number + 1):
-            page_url = f"{site[-1]}list_9_{page_nbr}.html"
+            page_url = f"{site[-1]}list_{tag_number}_{page_nbr}.html"
             page_soup = web_handler.soup(page_url)
             girls = belle_spider.girls_parser(page_soup)
             girls_length = len(girls)
 
             start_girl_number = db_pro.get_value(site_name, 'girl_number')
 
+            # 这页的girl数
+            this_page_girl_counter = 1
+
+            # 访问具体的 girl图片 页面
             for girl_idx, girl_item in enumerate(girls, 1):
                 girl_name, girl_url = girl_item
                 soup = web_handler.soup(girl_url)
@@ -88,19 +96,19 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                     continue
 
                 # 创建 girl 文件夹
-                girl_dir = f"{site_dir}{girl_name}/"
+                girl_dir = f"{site_dir}{page_nbr}_{this_page_girl_counter}_{girl_counter}__{girl_name}/"
                 file_handler.make_dirs(girl_dir)
 
                 girl_max_page_nbr = belle_spider.girl_max_page_number(soup)
                 log.debug(f"{girl_name} | Pages: {girl_max_page_nbr} | parsing ...")
 
                 pic_counter = 0
-                girl_page_counter = 0
+                girl_pic_page_counter = 0
                 tasks = []
 
-                while girl_page_counter <= girl_max_page_nbr:
-                    girl_page_counter += 1
-                    girl_page_url = girl_url.replace('.html', f'_{girl_page_counter}.html')
+                while girl_pic_page_counter <= girl_max_page_nbr:
+                    girl_pic_page_counter += 1
+                    girl_page_url = girl_url.replace('.html', f'_{girl_pic_page_counter}.html')
 
                     girl_page_soup = web_handler.soup(girl_page_url)
                     pic_urls = belle_spider.pics_parser(girl_page_soup)
@@ -129,22 +137,28 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                                           )
                         )
                 log.debug(f"{girl_name} | Pages: {girl_max_page_nbr} | parsed")
+
                 if tasks:
-                    log.info(f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number}-{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | downloading ...")
+                    log.info(
+                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number}-{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | downloading ...")
                     loop = get_event_loop()
                     loop.run_until_complete(wait(tasks))
-                    log.info(f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number}-{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | saved.")
+                    log.info(
+                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number}-{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | saved.")
 
                 # 如果 girl_idx > 保存在进度中的 start_girl_number, 更新
                 if girl_idx > start_girl_number:
-                    db_pro.update(site_name, girl_number=girl_idx)
+                    db_pro.update('site_name', site_name, girl_number=girl_idx)
+
+                girl_counter += 1
+                this_page_girl_counter += 1
 
             # 如果 page_nbr > 保存在进度中的 start_page_number, 更新
             if page_nbr > start_page_number:
-                db_pro.update(site_name, page_number=page_nbr)
+                db_pro.update('site_name', site_name, page_number=page_nbr)
 
         # 该网站下载完成
-        db_pro.update(site_name, finished=1)
+        db_pro.update('site_name', site_name, finished=1)
         log.info(f"{site_name}: finished.")
 
 
@@ -166,6 +180,7 @@ def main():
     except Exception as err:
         log.error(str(err))
 
+    return
     log.debug(f"url: {base_url} | 下载开始.")
     spider(start_url, base_url, log, data_dir)
     log.debug(f"url: {base_url} | 下载结束.")

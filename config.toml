@@ -21,3 +21,6 @@ log_dir = 'logs'
 back_count = 10
 # 单个文件大小
 max_size = 512
+
+[db]
+uri = "postgresql://postgres:666123~@localhost:5432/postgres"

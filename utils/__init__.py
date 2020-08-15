@@ -12,8 +12,7 @@ from .web_handler import WebHandler
 from .logger import logger
 from .file_handler import FileHandler
 from .models import GirlPics, Progress, create_db
-from .sqlite_utils import PicsTable, ProgressTable
+from .db_utils import PicsTable, ProgressTable
+from .config_parser import cfg
+from .proxy import BaseProxySpider
 from .constants import Const
-from .config_parser import parser
-
-cfg = parser(Const.cfg_path.value)

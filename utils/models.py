@@ -11,9 +11,9 @@
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime, func
-from .constants import Const
+from .config_parser import cfg
 
-DB_URI = Const.db_uri.value
+DB_URI = cfg['db']['uri']
 engine = sqlalchemy.create_engine(DB_URI)
 Base = declarative_base()
 
@@ -42,6 +42,13 @@ class Progress(BaseModel):
     page_number = Column(Integer, index=True, default=1, comment='页数')
     girl_number = Column(Integer, index=True, default=1, comment='第几个girl')
     finished = Column(Integer, default=0, comment='0: 下载未完成, 1: 下载完成')
+
+
+class Proxy(BaseModel):
+    __tablename__ = "Proxy"
+    host = Column(String, comment='地址')
+    port = Column(Integer, comment='端口')
+    active = Column(Integer, comment='是否可用,0: 不可用, 1:可用')
 
 
 def create_db():
