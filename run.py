@@ -96,7 +96,7 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                     continue
 
                 # 创建 girl 文件夹
-                girl_dir = f"{site_dir}{page_nbr}_{this_page_girl_counter}_{girl_counter}__{girl_name}/"
+                girl_dir = f"{site_dir}{girl_counter}_{page_nbr}_{this_page_girl_counter}__{girl_name}/"
                 file_handler.make_dirs(girl_dir)
 
                 girl_max_page_nbr = belle_spider.girl_max_page_number(soup)
@@ -140,11 +140,11 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
 
                 if tasks:
                     log.info(
-                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number}-{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | downloading ...")
+                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}:{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | downloading ...")
                     loop = get_event_loop()
                     loop.run_until_complete(wait(tasks))
                     log.info(
-                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number}-{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | saved.")
+                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}:{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | saved.")
 
                 # 如果 girl_idx > 保存在进度中的 start_girl_number, 更新
                 if girl_idx > start_girl_number:
@@ -180,7 +180,6 @@ def main():
     except Exception as err:
         log.error(str(err))
 
-    return
     log.debug(f"url: {base_url} | 下载开始.")
     spider(start_url, base_url, log, data_dir)
     log.debug(f"url: {base_url} | 下载结束.")
