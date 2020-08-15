@@ -32,6 +32,12 @@ class BellesSpider(WebHandler):
 
         return int(number)
 
+    @staticmethod
+    def get_full_girl_name(soup):
+        content = soup.select(".content > img")[0]['alt']
+
+        return content
+
     def girls_parser(self, soup) -> list:
         """ 解析单个页面中的美女列表"""
         tag_a = soup.select('.m-list > ul > li > a')

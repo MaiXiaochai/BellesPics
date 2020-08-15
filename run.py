@@ -95,16 +95,13 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                 if girl_idx < start_girl_number:
                     continue
 
-                # 创建 girl 文件夹
-                girl_dir = f"{site_dir}{girl_counter}_{page_nbr}_{this_page_girl_counter}_{girl_name}/"
-                file_handler.make_dirs(girl_dir)
-
                 girl_max_page_nbr = belle_spider.girl_max_page_number(soup)
                 log.debug(f"{girl_name} | Pages: {girl_max_page_nbr} | parsing ...")
 
                 pic_counter = 0
                 girl_pic_page_counter = 0
                 tasks = []
+                girl_dir, full_girl_name = '', ''
 
                 while girl_pic_page_counter <= girl_max_page_nbr:
                     girl_pic_page_counter += 1
@@ -112,6 +109,16 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
 
                     girl_page_soup = web_handler.soup(girl_page_url)
                     pic_urls = belle_spider.pics_parser(girl_page_soup)
+
+                    # Q: 问什么这里要再次获取 girl 名称？
+                    # A: 因为之前获取的不完整，这里获取的是完整的名称
+                    if girl_pic_page_counter == 1:
+                        full_girl_name = belle_spider.get_full_girl_name(soup)
+                        full_girl_name = belle_spider.trans_words(full_girl_name)
+
+                        # 创建 girl 文件夹
+                        girl_dir = f"{site_dir}{girl_counter}_{page_nbr}_{this_page_girl_counter}_{full_girl_name}/"
+                        file_handler.make_dirs(girl_dir)
 
                     for pic_url in pic_urls:
                         if db_pic.has_url(pic_url):
@@ -125,6 +132,7 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                             'site_name': site_name,
                             'site_url': site_url,
                             'girl_name': girl_name,
+                            'full_girl_name': full_girl_name,
                             'pic_url': pic_url,
                             'file_path': file_path
                         }
