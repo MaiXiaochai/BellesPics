@@ -98,7 +98,9 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                 girl_max_page_nbr = belle_spider.girl_max_page_number(soup)
                 log.debug(f"{girl_name} | Pages: {girl_max_page_nbr} | parsing ...")
 
+                # 该模特总的图片计数
                 pic_counter = 0
+                # 该模特的图片到了第几页
                 girl_pic_page_counter = 0
                 tasks = []
                 girl_dir, full_girl_name = '', ''
@@ -144,15 +146,15 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
                             ensure_future(file_handler.download_img(db_pic, data)
                                           )
                         )
-                log.debug(f"{girl_name} | Pages: {girl_max_page_nbr} | parsed")
+                log.debug(f"{full_girl_name} | Pages: {girl_max_page_nbr} | parsed")
 
                 if tasks:
                     log.info(
-                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}:{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | downloading ...")
+                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}/{girl_idx}/{girls_length} | {full_girl_name} | {pic_counter} | downloading ...")
                     loop = get_event_loop()
                     loop.run_until_complete(wait(tasks))
                     log.info(
-                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}:{girl_idx}/{girls_length} | {girl_name} | {pic_counter} | saved.")
+                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}/{girl_idx}/{girls_length} | {full_girl_name} | {pic_counter} | saved.")
 
                 # 如果 girl_idx > 保存在进度中的 start_girl_number, 更新
                 if girl_idx > start_girl_number:
