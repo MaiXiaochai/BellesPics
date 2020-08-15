@@ -41,12 +41,9 @@ class FileHandler:
             content = await response.read()
             return content
 
-    async def download_img(self, pic_counter, db, insert_data, log):
+    async def download_img(self, db, insert_data):
         url, file_path, girl_name = insert_data.get('pic_url'), insert_data.get('file_path'), insert_data.get('girl_name')
-        log.debug(f"{girl_name} | {pic_counter} | downloading ...")
+
         content = await self.__get_content(url)
         self.save_file(file_path, content)
-
         db.insert(**insert_data)
-        pic_url = insert_data.get('pic_url')
-        log.debug(f"{girl_name} | {pic_counter} | saved.")

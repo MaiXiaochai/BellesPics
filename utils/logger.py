@@ -12,7 +12,7 @@
 from os import makedirs
 from os.path import basename, exists
 from logging.handlers import RotatingFileHandler
-from logging import getLogger, StreamHandler, Formatter, DEBUG
+from logging import getLogger, StreamHandler, Formatter, DEBUG, INFO
 
 
 def logger(log_dir: str = None, file_name: str = None, back_count: int = None, log_size: float or int = None):
@@ -35,7 +35,7 @@ def logger(log_dir: str = None, file_name: str = None, back_count: int = None, l
 
     logger_.setLevel(DEBUG)
     handler1.setLevel(DEBUG)
-    handler2.setLevel(DEBUG)
+    handler2.setLevel(INFO)
 
     formatter = Formatter("[ %(asctime)s ][ %(levelname)s ][ %(filename)s:%(funcName)s ][ %(message)s ]")
     handler1.setFormatter(formatter)

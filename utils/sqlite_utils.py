@@ -11,49 +11,47 @@
 
 from sqlalchemy.orm import sessionmaker
 
-from .models import engine, GirlPics
+from .models import engine, GirlPics, Progress
 
 
-class DataBase:
-    def __init__(self):
+class BaseDataBase:
+    table_names = {
+        'pic': GirlPics,
+        'pro': Progress
+    }
+
+    def __init__(self, table_name: str):
         # 统一使用同一个变量，便于维护
-        self.tb_data = GirlPics
-        self.tv_data_keys = ["id", "site_name", "site_url", "girl_name", "pic_url", "file_path"]
+        table_name = table_name.lower().strip()
+        self.table_name = self.table_names.get(table_name)
+
         sess = sessionmaker(bind=engine)
         self.session = sess()
 
     def get_next_id(self) -> int:
         """获取最大 id 值"""
-        row = self.session.query(self.tb_data).order_by(self.tb_data.id.desc()).first()
+        row = self.session.query(self.table_name).order_by(self.table_name.id.desc()).first()
         next_id = (row.id + 1) if row else 1
 
         return next_id
 
     def insert(self, **kwargs):
         """插入数据"""
-        tb_data = self.tb_data()
+        tb_data = self.table_name()
 
-        for k in self.tv_data_keys:
-            if k in kwargs:
-                v = kwargs.get(k)
-                setattr(tb_data, k, v)
+        for k in kwargs:
+            v = kwargs.get(k)
+            setattr(tb_data, k, v)
 
         self.session.add(tb_data)
         self.commit()
 
-    def has_url(self, pic_url: str) -> bool:
-        """判断该张图片是否已经下载"""
-        row = self.session.query(self.tb_data).filter(self.tb_data.pic_url == pic_url).first()
-        result = True if row else False
-
-        return result
-
-    def has_girl_name(self, girl_name: str) -> bool:
-        """判断该美女的图片是否已经下载"""
-        row = self.session.query(self.tb_data).filter(self.tb_data.girl_name == girl_name).first()
-        result = True if row else False
-
-        return result
+    def update(self, site_name, **kwargs):
+        row = self.session.query(self.table_name).filter(self.table_name.site_name == site_name).first()
+        for k in kwargs:
+            v = kwargs.get(k)
+            setattr(row, k, v)
+            self.commit()
 
     def commit(self):
         self.session.commit()
@@ -63,3 +61,45 @@ class DataBase:
 
     def __del__(self):
         self.close()
+
+
+class PicsTable(BaseDataBase):
+    """ 图片信息的一些方法 """
+
+    def __init__(self):
+        super().__init__('pic')
+
+    def has_url(self, pic_url: str) -> bool:
+        """判断该张图片是否已经下载"""
+        row = self.session.query(self.table_name).filter(self.table_name.pic_url == pic_url).first()
+        result = True if row else False
+
+        return result
+
+    def has_girl_name(self, girl_name: str) -> bool:
+        """判断该美女的图片是否已经下载"""
+        row = self.session.query(self.table_name).filter(self.table_name.girl_name == girl_name).first()
+        result = True if row else False
+
+        return result
+
+
+class ProgressTable(BaseDataBase):
+    """ 进度表的一些方法 """
+
+    def __init__(self):
+        super().__init__('pro')
+
+    def has_site(self, site_name: str) -> bool:
+        """判断该张图片是否已经下载"""
+        row = self.session.query(self.table_name).filter(self.table_name.site_name == site_name).first()
+        result = True if row else False
+
+        return result
+
+    def get_value(self, site_name, column: str) -> int:
+        """ 获取数值 """
+        row = self.session.query(self.table_name).filter(self.table_name.site_name == site_name).first()
+        result = getattr(row, column)
+
+        return result
