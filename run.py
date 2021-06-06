@@ -10,11 +10,11 @@
 """
 from asyncio import ensure_future, get_event_loop, wait
 
-from utils import logger, WebHandler, FileHandler, BaseProxySpider, PicsTable, ProgressTable, create_db, cfg, Const
-from belles_spider import BellesSpider
+from belles_spider import BellesSpider, Spider
+from utils import logger, WebHandler, FileHandler, PicsTable, ProgressTable, create_db, cfg
 
 
-def spider(start_url: str, base_url: str, log, data_dir: str):
+def spider_(start_url: str, base_url: str, log, data_dir: str):
     file_handler = FileHandler()
     data_dir = file_handler.trans_dir(data_dir)
 
@@ -85,9 +85,9 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
             girl_counter = girl_counter + start_girl_number
 
             # 这页的girl数
-            this_page_girl_counter = 1
+            this_page_girl_counter = start_girl_number
 
-            # 访问具体的 girl图片 页面
+            # 访问具体的 girl列表页面
             for girl_idx, girl_item in enumerate(girls, 1):
                 girl_name, girl_url = girl_item
                 soup = web_handler.soup(girl_url)
@@ -151,11 +151,11 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
 
                 if tasks:
                     log.info(
-                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}/{girl_idx}/{girls_length} | {full_girl_name} | {pic_counter} | downloading ...")
+                        f"{site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}/{girl_idx}/{girls_length} | {full_girl_name} | {pic_counter} | downloading ...")
                     loop = get_event_loop()
                     loop.run_until_complete(wait(tasks))
                     log.info(
-                        f"{site_name} | {site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}/{girl_idx}/{girls_length} | {full_girl_name} | {pic_counter} | saved.")
+                        f"{site_idx}/{site_length} | {page_nbr}/{max_page_number} | {girl_counter}/{girl_idx}/{girls_length} | {full_girl_name} | {pic_counter} | saved.")
 
                 # 如果 girl_idx > 保存在进度中的 start_girl_number, 更新
                 if girl_idx > start_girl_number:
@@ -171,6 +171,11 @@ def spider(start_url: str, base_url: str, log, data_dir: str):
         # 该网站下载完成
         db_pro.update('site_name', site_name, finished=1)
         log.info(f"{site_name}: finished.")
+
+
+def demo(site_list_url, base_url, log, data_dir):
+    spider = Spider()
+    all_sites = spider.get_all_sites(site_list_url)
 
 
 def main():
@@ -191,9 +196,10 @@ def main():
     except Exception as err:
         log.error(str(err))
 
-    log.debug(f"url: {base_url} | 下载开始.")
-    spider(start_url, base_url, log, data_dir)
-    log.debug(f"url: {base_url} | 下载结束.")
+    demo(start_url, base_url, log, data_dir)
+    # log.debug(f"url: {base_url} | 下载开始.")
+    # spider(start_url, base_url, log, data_dir)
+    # log.debug(f"url: {base_url} | 下载结束.")
 
 
 if __name__ == '__main__':

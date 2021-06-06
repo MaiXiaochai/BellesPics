@@ -167,3 +167,4 @@ speed-measure-plugin*.json
 # data
 /data
 /logs
+PIPENV_VENV_IN_PROJECT/

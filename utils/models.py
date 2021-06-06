@@ -22,7 +22,7 @@ Base = declarative_base()
 
 class BaseModel(Base):
     __abstract__ = True
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
     createdOn = Column(DateTime, server_default=func.now(), comment='创建时间')
     updatedOn = Column(DateTime, server_default=func.now(), onupdate=func.now(), comment='更新时间')  # 时间自动更新
 

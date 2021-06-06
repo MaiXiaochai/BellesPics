@@ -1,11 +1,11 @@
 [[source]]
-name = "pypi"
-url = "https://pypi.org/simple"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 verify_ssl = true
-
-[dev-packages]
+name = "custom"
 
 [packages]
 
+[dev-packages]
+
 [requires]
-python_version = "3.8"
+python_version = "3.9"

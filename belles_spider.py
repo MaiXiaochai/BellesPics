@@ -60,3 +60,23 @@ class BellesSpider(WebHandler):
         number = url.split(sep)[-2]
 
         return int(number)
+
+
+class Spider(BellesSpider):
+    """ 用于流程的spider"""
+
+    def get_all_sites(self, url) -> list:
+        soup = self.soup(url)
+        result = soup.find_all('a', attrs={"target": "_blank"})
+
+        # 所有分类 (name, url)
+        urls = []
+        for tag in result:
+            tag_url = url + tag['href']
+            tag_name = self.trans_words(tag.text)
+            urls.append((tag_name, tag_url))
+
+        return result
+
+    def get_girls_on_page(self, url):
+        pass
